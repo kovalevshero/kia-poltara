@@ -21,7 +21,7 @@
                 </div>
                 <div class="float-right">
                     <div class="btn-group" role="group">
-                        <a href="{{ url('add-content') }}" class="btn pull-right"><i class="fa fa-plus"
+                        <a href="{{ url('content/add') }}" class="btn btn-primary pull-right"><i class="fa fa-plus"
                                 aria-hidden="true"></i> Tambah Konten</a>
                     </div>
                 </div>
