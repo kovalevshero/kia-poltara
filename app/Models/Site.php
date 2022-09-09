@@ -10,6 +10,6 @@ class Site extends Model
     use HasFactory;
 
     protected $guarded = [];
-    protected $primaryKey = 'id_situs';
-    protected $table = 'situs';
+    protected $primaryKey = 'id';
+    protected $table = 'site';
 }

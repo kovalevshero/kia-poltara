@@ -10,6 +10,6 @@ class ContentSite extends Model
     use HasFactory;
 
     protected $guarded = [];
-    protected $primaryKey = 'id_content_situs';
-    protected $table = 'content_situs';
+    protected $primaryKey = 'id';
+    protected $table = 'content_site';
 }

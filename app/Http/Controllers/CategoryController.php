@@ -14,7 +14,7 @@ class CategoryController extends Controller
 
     public function index()
     {
-        $ret['data'] = Category::leftJoin('situs', 'situs.id_situs', 'kategori.id_situs')
+        $ret['data'] = Category::leftJoin('site', 'site.id', 'category.site_id')
             ->get();
 
         return view('category.index', $ret);

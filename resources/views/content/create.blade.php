@@ -56,6 +56,7 @@
     <div class="card">
         <form action="{{ url('content/store') }}" method="POST" enctype="multipart/form-data">
             @csrf
+
             <div class="row no-gutters">
                 <!-- Left Column. -->
                 <div class="col-md-2">
@@ -65,15 +66,18 @@
                                 <a class="nav-link" id="draf-tab" data-toggle="tab" href="#draf" role="tab"
                                     aria-controls="draf" aria-selected="true">Draf</a>
                             </li>
+
                             <li class="nav-item">
                                 <a class="nav-link active" id="terbit-tab" data-toggle="tab" href="#terbit" role="tab"
                                     aria-controls="terbit" aria-selected="true">Terbit</a>
                             </li>
                         </ul>
                     </div>
+
                     <div class="form-outline my-2 d-flex justify-content-center">
-                        <a href="{{ url('content/add') }}"><u>Buat berita baru +</u></a>
+                        <a href="{{ url('content/create') }}"><u>Buat berita baru +</u></a>
                     </div>
+
                     <div class="tab-content" id="myTabContent">
                         <div class="tab-pane fade" id="draf" role="tabpanel" aria-labelledby="draf-tab">
                             <div class="card-body border-bottom">
@@ -81,70 +85,85 @@
                                     <input type="search" class="form-control form-control-md w-100 search-draft"
                                         placeholder="&#xf002; &nbsp; Cari draf berita..." aria-label="Search">
                                 </div>
+
                                 <p class="mb-0 mt-2" style="font-size: 13px; opacity: 0.6;">{{ $count_draft }} Draf
                                 </p>
                             </div>
+
                             <div class="draft-content">
                                 @foreach ($draft as $val)
                                     <div class="card card-body border-bottom">
-                                        <a href="{{ url('/content/edit') }}/{{ $val->id_content_user }}"
-                                            class="stretched-link" style="color: inherit;">{{ $val->judul }}</a>
+                                        <a href="{{ url('/content/edit') }}/{{ $val->id }}" class="stretched-link"
+                                            style="color: inherit;">{{ $val->title }}
+                                        </a>
+
                                         <p class="mb-0 mt-2" style="font-size: 11px; opacity: 0.6;">
                                             {{ date_format($val->created_at, 'd M Y H:i') }}
                                         </p>
                                     </div>
                                 @endforeach
                             </div>
+
                             <div class="form-group mt-4 d-flex justify-content-center">
                                 {{ $draft->links() }}
                             </div>
                         </div>
+
                         <div class="tab-pane fade show active" id="terbit" role="tabpanel" aria-labelledby="terbit-tab">
                             <div class="card-body border-bottom">
                                 <div class="form-outline">
                                     <input type="search" class="form-control form-control-md w-100 search-content"
                                         placeholder="&#xf002; &nbsp; Cari judul berita..." aria-label="Search">
                                 </div>
+
                                 <p class="mb-0 mt-2" style="font-size: 13px; opacity: 0.6;">{{ $count_terbit }}
-                                    Berita
-                                    terbit</p>
+                                    Berita terbit
+                                </p>
                             </div>
+
                             <div class="terbit-content">
                                 @foreach ($terbit as $val)
                                     <div class="card card-body border-bottom">
-                                        <a href="{{ url('content/edit') }}/{{ $val->id_content_user }}"
-                                            class="stretched-link" style="color: inherit;">{{ $val->judul }}</a>
+                                        <a href="{{ url('content/edit') }}/{{ $val->id }}" class="stretched-link"
+                                            style="color: inherit;">{{ $val->title }}</a>
                                         <p class="mb-0 mt-2" style="font-size: 11px; opacity: 0.6;">
                                             {{ date_format($val->created_at, 'd M Y H:i') }}
                                         </p>
                                     </div>
                                 @endforeach
                             </div>
+
                             <div class="form-group mt-4 d-flex justify-content-center">
                                 {{ $terbit->links() }}
                             </div>
                         </div>
                     </div>
                 </div>
+
                 <!-- Center Column. -->
                 <div class="col-md-8 border-left border-right">
                     <div class="card-body">
                         <div class="form-group">
-                            <input type="text" class="form-control" name="judul"
+                            <label for="input-title">Judul Berita</label>
+
+                            <input type="text" id="input-title" class="form-control" name="title"
                                 placeholder="Tulis judul berita disini..." required>
                         </div>
                         <div class="form-group">
                             <label for="input-foto">Foto Sampul</label>
-                            <input type="file" id="input-foto" class="form-control dropify" name="gambar"
+
+                            <input type="file" id="input-foto" class="form-control dropify" name="image"
                                 accept="jpg jpeg png" data-max-file-size="2M" required>
                         </div>
+
                         <div class="form-group">
                             <label for="input-deskripsi-foto">Keterangan Foto</label>
-                            <input type="text" id="input-deskripsi-foto" class="form-control" name="deskripsi_foto"
+
+                            <input type="text" id="input-deskripsi-foto" class="form-control" name="image_description"
                                 placeholder="Deskripsi foto..." required>
                         </div>
 
-                        <textarea cols="80" id="isi_content" class="isi_content" name="isi_content" rows="10"></textarea>
+                        <textarea cols="80" id="isi_content" class="isi_content" name="body" rows="10"></textarea>
 
                         <div id="word-count"></div>
 
@@ -153,14 +172,18 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-tags" aria-hidden="true"></i></span>
                                 </div>
+
                                 <input type="text" class="form-control" name="tags" data-role="tagsinput"
                                     placeholder="Tambahkan tags...">
+
                                 <p style="font-style: italic; font-size: 12px; margin: 0;">Tekan koma untuk menginputkan
-                                    tags</p>
+                                    tags
+                                </p>
                             </div>
                         </div>
                     </div>
                 </div>
+
                 <!-- Right Column. -->
                 <div class="col-md-2">
                     <div class="card-body">
@@ -169,44 +192,58 @@
                                 <button type="submit" class="btn btn-primary mx-3 btn-terbit"
                                     style="width: 100%;">Terbitkan</button>
                             </div>
+
                             <div class="row">
                                 <input type="hidden" class="input-draft" name="is_draft">
-                                <button class="btn btn-secondary mt-2 mx-3 btn-draft" style="width: 100%;">Simpan ke
-                                    draf</button>
+
+                                <button class="btn btn-secondary mt-2 mx-3 btn-draft" style="width: 100%;">
+                                    Simpan ke draf
+                                </button>
                             </div>
                         </div>
+
                         <div class="form-group mt-5">
                             <label for="input-platform">Platform Terbit</label>
-                            <select class="form-control selectpicker select-situs" name="id_situs[]" id="input-platform"
+
+                            <select class="form-control selectpicker select-situs" name="site_id[]" id="input-platform"
                                 data-live-search="true" data-live-search-placeholder="Pilih platform"
                                 title="Pilih platform" multiple required>
-                                @foreach ($situs as $value)
-                                    <option value="{{ $value->id_situs }}">{{ $value->nama_situs }}
+
+                                @foreach ($site as $value)
+                                    <option value="{{ $value->id }}">{{ $value->site_name }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
+
                         <div class="form-group mt-2">
                             <label for="input-kategori">Kategori</label>
-                            <select class="form-control select-kategori" name="kategori_id" id="input-kategori">
+
+                            <select class="form-control select-kategori" name="category_id" id="input-kategori">
                                 <option value="" selected disabled>Pilih kategori</option>
                             </select>
                         </div>
+
                         <div class="form-group mt-2">
                             <label for="input-tanggal-publish">Tanggal Terbit</label>
+
                             <input type="datetime-local" id="input-tanggal-publish" class="form-control"
-                                name="tanggal_publish">
+                                name="published_date">
                         </div>
+
                         <div class="form-group mt-2">
                             <label for="input-penulis">Penulis</label>
-                            <input type="text" id="input-penulis" class="form-control" name="penulis"
+
+                            <input type="text" id="input-penulis" class="form-control" name="writer"
                                 @if (Auth::user()) value="{{ Auth::user()->name }}" @endif required>
                         </div>
-                        @if (Auth::user()->role == 1 || Auth::user()->role == 2)
+
+                        @if (Auth::user()->role_id == 1 || Auth::user()->role_id == 2)
                             <div class="form-group mt-2">
                                 <label for="input-editor">Editor</label>
+
                                 <input type="text" id="input-editor" class="form-control" name="editor"
-                                    @if (Auth::user()) @if (Auth::user()->role == 1 || Auth::user()->role == 2) value="{{ Auth::user()->name }}" @endif
+                                    @if (Auth::user()) @if (Auth::user()->role_id == 1 || Auth::user()->role_id == 2) value="{{ Auth::user()->name }}" @endif
                                     @endif>
                             </div>
                         @endif
@@ -253,10 +290,9 @@
             });
 
             $('.select-situs').on('change', function() {
-                let id_situs = $(this).val()
-                console.log(id_situs)
+                let site_id = $(this).val()
 
-                if (id_situs) {
+                if (site_id) {
                     $.ajaxSetup({
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -267,7 +303,7 @@
                         method: 'GET',
                         url: "{{ url('content/get-category') }}",
                         data: {
-                            'id_situs': id_situs[id_situs.length - 1],
+                            'site_id': site_id[site_id.length - 1],
                         },
                         success: function(data, status, xhr) {
                             let result = JSON.parse(xhr.responseText);
@@ -283,7 +319,7 @@
 
                                     $.each(result.data, function(index, value) {
                                         $('.select-kategori').append(
-                                            `<option value="${value.id_kategori}">${value.nama_kategori}</option>`
+                                            `<option value="${value.id}">${value.category_name}</option>`
                                         )
                                     })
                                 } else {

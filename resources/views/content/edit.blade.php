@@ -77,7 +77,7 @@
 
                     </div>
                     <div class="form-outline my-2 d-flex justify-content-center">
-                        <a href="{{ url('content/add') }}"><u>Buat berita baru +</u></a>
+                        <a href="{{ url('content/create') }}"><u>Buat berita baru +</u></a>
                     </div>
                     <div class="tab-content" id="myTabContent">
                         <div class="tab-pane fade" id="draf" role="tabpanel" aria-labelledby="draf-tab">
@@ -92,9 +92,9 @@
                             <div class="draft-content">
                                 @foreach ($draft as $val)
                                     <div class="card card-body">
-                                        <a href="{{ url('content/edit') }}/{{ $val->id_content_user }}"
+                                        <a href="{{ url('content/edit') }}/{{ $val->id }}"
                                             class="stretched-link draft-content"
-                                            style="color: inherit;">{{ $val->judul }}</a>
+                                            style="color: inherit;">{{ $val->title }}</a>
                                         <p class=" mb-0 mt-2" style="font-size: 11px; opacity: 0.6;">
                                             {{ date_format($val->created_at, 'd M Y H:i') }}
                                         </p>
@@ -112,15 +112,15 @@
                                         placeholder="&#xf002; &nbsp; Cari judul berita..." aria-label="Search">
                                 </div>
                                 <p class="mb-0 mt-2" style="font-size: 13px; opacity: 0.6;">{{ $count_terbit }}
-                                    Berita
-                                    terbit</p>
+                                    Berita terbit
+                                </p>
                             </div>
                             <div class="terbit-content">
                                 @foreach ($terbit as $val)
                                     <div class="card card-body border-bottom">
-                                        <a href="{{ url('content/edit') }}/{{ $val->id_content_user }}"
+                                        <a href="{{ url('content/edit') }}/{{ $val->id }}"
                                             class="stretched-link judul-terbit-content"
-                                            style="color: inherit;">{{ $val->judul }}</a>
+                                            style="color: inherit;">{{ $val->title }}</a>
                                         <p class="mb-0 mt-2 tanggal-terbit-content" style="font-size: 11px; opacity: 0.6;">
                                             {{ date_format($val->created_at, 'd M Y H:i') }}
                                         </p>
@@ -137,23 +137,23 @@
                 <div class="col-md-8 border-left border-right">
                     <div class="card-body">
                         <div class="form-group">
-                            <input type="hidden" name="id_content_user" value="{{ $data->id_content_user }}">
-                            <input type="text" class="form-control" name="judul"
-                                placeholder="Tulis judul berita disini..." value="{{ $data->judul }}" required>
+                            <input type="hidden" name="id" value="{{ $data->content_id }}">
+                            <input type="text" class="form-control" name="title"
+                                placeholder="Tulis judul berita disini..." value="{{ $data->title }}" required>
                         </div>
                         <div class="form-group">
                             <label for="input-foto">Foto Sampul</label>
-                            <input type="file" id="input-foto" class="form-control dropify" name="gambar"
+                            <input type="file" id="input-foto" class="form-control dropify" name="image"
                                 accept="jpg jpeg png" data-max-file-size="2M"
-                                data-default-file="{{ url('/img/content') }}/{{ $data->gambar }}">
+                                data-default-file="{{ asset('img') }}/content/{{ $data->image }}">
                         </div>
                         <div class="form-group">
                             <label for="input-deskripsi-foto">Keterangan Foto</label>
-                            <input type="text" id="input-deskripsi-foto" class="form-control" name="deskripsi_foto"
-                                placeholder="Deskripsi foto..." value="{{ $data->deskripsi_foto }}" required>
+                            <input type="text" id="input-deskripsi-foto" class="form-control" name="image_description"
+                                placeholder="Deskripsi foto..." value="{{ $data->image_description }}" required>
                         </div>
 
-                        <textarea cols="80" id="isi_content" class="isi_content" name="isi_content" rows="10">{{ $data->isi_content }}</textarea>
+                        <textarea cols="80" id="isi_content" class="isi_content" name="body" rows="10">{{ $data->body }}</textarea>
 
                         <div id="word-count"></div>
 
@@ -163,7 +163,7 @@
                                     <span class="input-group-text"><i class="fa fa-tags" aria-hidden="true"></i></span>
                                 </div>
                                 <input type="text" class="form-control" name="tags" data-role="tagsinput"
-                                    value="@foreach ($tags as $val) {{ $val->nama_tag }}, @endforeach"
+                                    value="@foreach ($tags as $val) {{ $val->tag_name }}, @endforeach"
                                     placeholder="Tambahkan tags...">
                                 <p style="font-style: italic; font-size: 12px; margin: 0;">Tekan koma untuk menginputkan
                                     tags</p>
@@ -181,51 +181,52 @@
                             </div>
                             <div class="row">
                                 <input type="hidden" class="input-draft" name="is_draft">
-                                <button class="btn btn-secondary mt-2 mx-3 btn-draft" style="width: 100%;">Simpan
-                                    ke
-                                    draf</button>
+                                <button class="btn btn-secondary mt-2 mx-3 btn-draft" style="width: 100%;">
+                                    Simpan ke draf
+                                </button>
                             </div>
                         </div>
                         <div class="form-group mt-5">
                             <label for="input-platform">Platform Terbit</label>
-                            <select class="selectpicker form-control select-situs" name="id_situs[]" id="input-platform"
+                            <select class="selectpicker form-control select-situs" name="site_id[]" id="input-platform"
                                 data-live-search="true" data-live-search-placeholder="Pilih platform"
                                 title="Pilih platform" multiple required>
-                                @foreach ($situs as $val)
-                                    <option value="{{ $val->id_situs }}"
-                                        {{ $val->id_situs == $data->id_situs ? 'selected' : '' }}>
-                                        {{ $val->nama_situs }}
+                                @foreach ($site as $val)
+                                    <option value="{{ $val->id }}"
+                                        {{ $val->id == $data->site_id ? 'selected' : '' }}>
+                                        {{ $val->site_name }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="form-group mt-2">
                             <label for="input-kategori">Kategori</label>
-                            <select class="selectpicker form-control select-kategori" name="kategori_id"
+
+                            <select class="selectpicker form-control select-kategori" name="category_id"
                                 id="input-kategori" data-live-search="true">
-                                @foreach ($kategori as $val)
-                                    <option value="{{ $val->id_kategori }}"
-                                        {{ $val->id_kategori == $data->kategori_id ? 'selected' : '' }}>
-                                        {{ $val->nama_kategori }}
+                                @foreach ($category as $val)
+                                    <option value="{{ $val->id }}"
+                                        {{ $val->id == $data->category_id ? 'selected' : '' }}>
+                                        {{ $val->category_name }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="form-group mt-2">
                             <label for="input-tanggal-publish">Tanggal Terbit</label>
-                            <input type="datetime-local" id="input-tanggal-publish" class="form-control"
-                                name="tanggal_publish">
+                            <input type="datetime-local" step="0" id="input-tanggal-publish" class="form-control"
+                                value="{{ $data->published_date }}" name="published_date">
                         </div>
                         <div class="form-group mt-2">
                             <label for="input-penulis">Penulis</label>
-                            <input type="text" id="input-penulis" class="form-control" name="penulis"
-                                value="{{ $data->penulis }}" required>
+                            <input type="text" id="input-penulis" class="form-control" name="writer"
+                                value="{{ $data->writer }}" required>
                         </div>
                         <div class="form-group mt-2">
                             <label for="input-editor">Editor</label>
                             <input type="text" id="input-editor" class="form-control" name="editor"
                                 value="{{ $data->editor }}"
-                                {{ Auth::user()->role == 1 || Auth::user()->role == 2 ? '' : 'readonly' }}>
+                                {{ Auth::user()->role_id == 1 || Auth::user()->role_id == 2 ? '' : 'readonly' }}>
                         </div>
                     </div>
                 </div>
@@ -237,7 +238,7 @@
 @section('scripts')
     <script>
         $(document).ready(function() {
-            if (!"{{ $data->kategori_id }}") {
+            if (!"{{ $data->category_id }}") {
                 $('.select-kategori').append(
                     `<option value="" selected disabled>Pilih kategori</option>`
                 )
@@ -282,9 +283,9 @@
             });
 
             $('.select-situs').on('change', function() {
-                let id_situs = $(this).val()
+                let siteId = $(this).val()
 
-                if (id_situs) {
+                if (site_id) {
                     $.ajaxSetup({
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -295,7 +296,7 @@
                         method: 'GET',
                         url: "{{ url('content/get-category') }}",
                         data: {
-                            'id_situs': id_situs[id_situs.length - 1],
+                            'site_id': siteId[siteId.length - 1],
                         },
                         success: function(data, status, xhr) {
                             let result = JSON.parse(xhr.responseText);
@@ -312,7 +313,7 @@
 
                                     $.each(result.data, function(index, value) {
                                         $('.select-kategori').append(
-                                            `<option value="${value.id_kategori}">${value.nama_kategori}</option>`
+                                            `<option value="${value.id}">${value.category_name}</option>`
                                         )
                                     })
                                 } else {

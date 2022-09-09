@@ -2,12 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
-use App\Models\ContentLogs;
-use App\Models\ContentSite;
-use App\Models\ContentTags;
-use App\Models\ContentUser;
-use App\Models\Site;
+use App\Models\{Category, Content, ContentSite, ContentTags, Site};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -16,73 +11,65 @@ use Illuminate\Support\Facades\DB;
 
 class ContentController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
     public function index()
     {
-        // $content = Http::get('https://sorot.news/api/data-berita/poltara')->body();
-        // $ret['data'] = json_decode($content, true)['data'];
-
-        $ret['data'] = ContentUser::leftJoin('users', 'users.id', 'content_user.id_users')
-            ->leftJoin('content_logs', 'content_logs.id_content_user', 'content_user.id_content_user')
-            ->orderBy('content_user.id_content_user', 'DESC')
+        $ret['data'] = Content::leftJoin('users', 'users.id', 'content.user_id')
+            ->orderBy('content.id', 'DESC')
+            ->selectRaw('content.*, users.*, content.id AS content_id')
             ->get();
 
-        return view('content/index', $ret);
+        return view('content.index', $ret);
     }
 
-    public function add()
+    public function create()
     {
-        $ret['kategori'] = Category::all();
-        $ret['situs'] = Site::all();
+        $ret['category'] = Category::all();
+        $ret['site'] = Site::all();
 
-        if (Auth::user()->role == 1 || Auth::user()->role == 2) {
-            $ret['draft'] = ContentUser::where('is_draft', 1)
-                ->orderBy('tanggal_publish', 'DESC')
+        if (Auth::user()->role_id == 1 || Auth::user()->role_id == 2) {
+            $ret['draft'] = Content::where('is_draft', 1)
+                ->orderBy('published_date', 'DESC')
                 ->simplePaginate(6);
 
-            $ret['terbit'] = ContentUser::whereNull('is_draft')
-                ->orderBy('tanggal_publish', 'DESC')
+            $ret['terbit'] = Content::whereNull('is_draft')
+                ->orderBy('published_date', 'DESC')
                 ->simplePaginate(6);
 
-            $draft = ContentUser::where('is_draft', 1)
-                ->orderBy('tanggal_publish', 'DESC')
+            $draft = Content::where('is_draft', 1)
+                ->orderBy('published_date', 'DESC')
                 ->get();
 
-            $terbit = ContentUser::whereNull('is_draft')
+            $terbit = Content::whereNull('is_draft')
                 ->where('status_content', 2)
-                ->orderBy('tanggal_publish', 'DESC')
+                ->orderBy('published_date', 'DESC')
                 ->get();
         } else {
-            $ret['draft'] = ContentUser::where('is_draft', 1)
-                ->where('id_users', Auth::user()->id)
-                ->orderBy('tanggal_publish', 'DESC')
+            $ret['draft'] = Content::where('is_draft', 1)
+                ->where('user_id', Auth::user()->id)
+                ->orderBy('published_date', 'DESC')
                 ->simplePaginate(6);
 
-            $ret['terbit'] = ContentUser::whereNull('is_draft')
-                ->where('id_users', Auth::user()->id)
-                ->orderBy('tanggal_publish', 'DESC')
+            $ret['terbit'] = Content::whereNull('is_draft')
+                ->where('user_id', Auth::user()->id)
+                ->orderBy('published_date', 'DESC')
                 ->simplePaginate(6);
 
-            $draft = ContentUser::where('is_draft', 1)
-                ->where('id_users', Auth::user()->id)
-                ->orderBy('tanggal_publish', 'DESC')
+            $draft = Content::where('is_draft', 1)
+                ->where('user_id', Auth::user()->id)
+                ->orderBy('published_date', 'DESC')
                 ->get();
 
-            $terbit = ContentUser::whereNull('is_draft')
-                ->where('id_users', Auth::user()->id)
+            $terbit = Content::whereNull('is_draft')
+                ->where('user_id', Auth::user()->id)
                 ->where('status_content', 2)
-                ->orderBy('tanggal_publish', 'DESC')
+                ->orderBy('published_date', 'DESC')
                 ->get();
         }
 
         $ret['count_terbit'] = count($terbit);
         $ret['count_draft'] = count($draft);
 
-        return view('content.add', $ret);
+        return view('content.create', $ret);
     }
 
     public function store(Request $request)
@@ -94,131 +81,130 @@ class ContentController extends Controller
         ];
 
         $this->validate($request, [
-            'judul'  => 'required|max:255',
-            'isi_content' => 'required',
-            'gambar.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'title'  => 'required|max:255',
+            'body' => 'required',
+            'image.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ], $messages);
 
+        // dd($request->all());
+
         // Image 
-        $image = $request->file('gambar');
+        $image = $request->file('image');
+
         if ($image) {
-            $image = time() . '.' . request()->gambar->getClientOriginalExtension();
-            request()->gambar->move(public_path('/img/content/'), $image);
+            $image = time() . '.' . request()->image->getClientOriginalExtension();
+            request()->image->move(public_path('/img/content/'), $image);
         }
 
-        $slug = Str::slug($request->judul);
-        $tags = explode(',', $request->input('tags'));
+        $slug = Str::slug($request->title);
+        $tags = explode(',', $request->tags);
 
         // Data to be stored
-        $insert = $request->except('_token', '_method', 'id_situs', 'tags');
-        $insert['id_users'] = Auth::id();
-        $insert['gambar'] = $image;
+        $insert = $request->except('_token', '_method', 'site_id', 'tags');
+        $insert['user_id'] = Auth::id();
+        $insert['image'] = $image;
         $insert['slug'] = $slug;
-        $insert['status_content'] = Auth::user()->role == 1 || Auth::user()->role == 2 ? 2 : 1;
+        $insert['status_content'] = Auth::user()->role_id == 1 || Auth::user()->role_id == 2 ? 2 : 1;
 
-        if (empty($insert['tanggal_publish'])) {
-            $insert['tanggal_publish'] = Auth::user()->role == 1 || Auth::user()->role == 2 ? date('Y-m-d H:i:s') : '';
+        if (empty($insert['published_date'])) {
+            $insert['published_date'] = Auth::user()->role_id == 1 || Auth::user()->role_id == 2 ? now() : null;
         }
 
         try {
             DB::beginTransaction();
 
-            $content_id = ContentUser::insertGetId($insert); // Store data
+            $content_id = Content::insertGetId($insert); // Store data
 
             if ($content_id) {
-                foreach ($request->input('id_situs') as $val) {
+                foreach ($request->site_id as $val) {
                     $insertSitus = [
-                        'id_content' => $content_id,
-                        'id_situs' => $val
+                        'content_id' => $content_id,
+                        'site_id' => $val
                     ];
 
                     ContentSite::insert($insertSitus); // Store data
                 }
-
-                // Create Logs
-                $insertLogs = [
-                    'id_content_user' => $content_id
-                ];
-
-                ContentLogs::insert($insertLogs); // Store data
             }
 
             foreach ($tags as $val) {
                 $insertTags = [
-                    'nama_tag' => $val,
-                    'id_content' => $content_id
+                    'tag_name' => $val,
+                    'content_id' => $content_id
                 ];
 
                 ContentTags::insert($insertTags); // Store data
             }
 
             DB::commit();
+
+            return redirect('content');
         } catch (\Exception $e) {
             DB::rollBack();
+            dd($e->getMessage());
         }
-
-        return redirect('content');
     }
 
     public function edit($id)
     {
-        $ret['data'] = ContentUser::leftJoin('kategori', 'kategori.id_kategori', 'content_user.kategori_id')
-            ->leftJoin('content_situs', 'content_situs.id_content', 'content_user.id_content_user')
-            ->where('content_user.id_content_user', $id)
-            ->selectRaw('content_user.*, content_situs.id_situs AS id_situs')
+        $ret['data'] = Content::leftJoin('category', 'category.id', 'content.category_id')
+            ->leftJoin('content_site', 'content_site.content_id', 'content.id')
+            ->where('content.id', $id)
+            ->selectRaw('content.*, content.id AS content_id, content_site.site_id AS site_id')
             ->first();
 
-        $ret['situs'] = Site::all();
-        $ret['tags'] = ContentTags::where('id_content', $id)
+        $ret['site'] = Site::all();
+
+        $ret['tags'] = ContentTags::where('content_id', $id)
             ->get();
-        $ret['kategori'] = Category::all();
 
-        if (Auth::user()->role == 1 || Auth::user()->role == 2) {
-            $ret['draft'] = ContentUser::where('is_draft', 1)
-                ->orderBy('tanggal_publish', 'DESC')
+        $ret['category'] = Category::all();
+
+        if (Auth::user()->role_id == 1 || Auth::user()->role_id == 2) {
+            $ret['draft'] = Content::where('is_draft', 1)
+                ->orderBy('published_date', 'DESC')
                 ->simplePaginate(6);
 
-            $ret['terbit'] = ContentUser::whereNull('is_draft')
+            $ret['terbit'] = Content::whereNull('is_draft')
                 ->where('status_content', 2)
-                ->orderBy('tanggal_publish', 'DESC')
+                ->orderBy('published_date', 'DESC')
                 ->simplePaginate(6);
 
-            $draft = ContentUser::where('is_draft', 1)
-                ->orderBy('tanggal_publish', 'DESC')
+            $draft = Content::where('is_draft', 1)
+                ->orderBy('published_date', 'DESC')
                 ->get();
 
-            $terbit = ContentUser::whereNull('is_draft')
+            $terbit = Content::whereNull('is_draft')
                 ->where('status_content', 2)
-                ->orderBy('tanggal_publish', 'DESC')
+                ->orderBy('published_date', 'DESC')
                 ->get();
         } else {
-            $ret['draft'] = ContentUser::where('is_draft', 1)
-                ->where('id_users', Auth::user()->id)
-                ->orderBy('tanggal_publish', 'DESC')
+            $ret['draft'] = Content::where('is_draft', 1)
+                ->where('user_id', Auth::user()->id)
+                ->orderBy('published_date', 'DESC')
                 ->simplePaginate(6);
 
-            $ret['terbit'] = ContentUser::whereNull('is_draft')
-                ->where('id_users', Auth::user()->id)
+            $ret['terbit'] = Content::whereNull('is_draft')
+                ->where('user_id', Auth::user()->id)
                 ->where('status_content', 2)
-                ->orderBy('tanggal_publish', 'DESC')
+                ->orderBy('published_date', 'DESC')
                 ->simplePaginate(6);
 
-            $draft = ContentUser::where('is_draft', 1)
-                ->where('id_users', Auth::user()->id)
-                ->orderBy('tanggal_publish', 'DESC')
+            $draft = Content::where('is_draft', 1)
+                ->where('user_id', Auth::user()->id)
+                ->orderBy('published_date', 'DESC')
                 ->get();
 
-            $terbit = ContentUser::whereNull('is_draft')
-                ->where('id_users', Auth::user()->id)
+            $terbit = Content::whereNull('is_draft')
+                ->where('user_id', Auth::user()->id)
                 ->where('status_content', 2)
-                ->orderBy('tanggal_publish', 'DESC')
+                ->orderBy('published_date', 'DESC')
                 ->get();
         }
 
         $ret['count_terbit'] = count($terbit);
         $ret['count_draft'] = count($draft);
 
-        return view('content/edit', $ret);
+        return view('content.edit', $ret);
     }
 
     public function update(Request $request)
@@ -230,73 +216,76 @@ class ContentController extends Controller
         ];
 
         $this->validate($request, [
-            'judul'  => 'required|max:255',
-            'isi_content' => 'required',
-            'gambar.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'title'  => 'required|max:255',
+            'body' => 'required',
+            'image.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ], $messages);
 
+        // dd($request->all());
+
         // Image
-        $image = $request->file('gambar');
+        $image = $request->file('image');
+
         if ($image) {
-            $image = time() . '.' . request()->gambar->getClientOriginalExtension();
-            request()->gambar->move(public_path('/img/content/'), $image);
-            $insert['gambar'] = $image;
+            $image = time() . '.' . request()->image->getClientOriginalExtension();
+            request()->image->move(public_path('/img/content/'), $image);
+            $insert['image'] = $image;
         }
 
-        $slug = Str::slug($request->judul);
-        $tags = explode(',', $request->input('tags'));
+        $slug = Str::slug($request->title);
+        $tags = explode(',', $request->tags);
 
         // Data to be updated
-        $insert = $request->except('_token', '_method', 'id_situs', 'tags');
+        $insert = $request->except('_token', '_method', 'site_id', 'tags');
         $insert['slug'] = $slug;
-        $insert['status_content'] = Auth::user()->role == 1 || Auth::user()->role == 2 ? 2 : 1;
-        $insert['tanggal_publish'] = Auth::user()->role == 1 || Auth::user()->role == 2 ? date('Y-m-d H:i:s') : '';
+        $insert['status_content'] = Auth::user()->role_id == 1 || Auth::user()->role_id == 2 ? 2 : 1;
+        $insert['published_date'] = Auth::user()->role_id == 1 || Auth::user()->role_id == 2 ? now() : null;
 
         try {
             DB::beginTransaction();
 
-            ContentUser::where('id_content_user', $insert['id_content_user'])->update($insert); // Update data
+            Content::where('id', $insert['id'])->update($insert); // Update data
 
             if ($insert['is_draft'] == 1) { // To be drafted
-                ContentSite::where('id_content', $insert['id_content_user'])->delete(); // Delete data
+                Site::where('content_id', $insert['id'])->delete(); // Delete data
 
-                foreach ($request->input('id_situs') as $val) {
+                foreach ($request->site_id as $val) {
                     $insertSitus = [
-                        'id_content' => $insert['id_content_user'],
-                        'id_situs' => $val
+                        'content_id' => $insert['id'],
+                        'site_id' => $val
                     ];
 
-                    ContentSite::insert($insertSitus); // Insert new data
+                    Site::insert($insertSitus); // Insert new data
                 }
 
-                ContentTags::where('id_content', $insert['id_content_user'])->delete(); // Delete data
+                ContentTags::where('content_id', $insert['id'])->delete(); // Delete data
 
                 foreach ($tags as $val) {
                     $insertTags = [
-                        'nama_tag' => $val,
-                        'id_content' => $insert['id_content_user']
+                        'tag_name' => $val,
+                        'content_id' => $insert['id']
                     ];
 
                     ContentTags::insert($insertTags); // Insert new data
                 }
             } else { // To be published
-                ContentSite::where('id_content', $insert['id_content_user'])->delete(); // Delete data
+                ContentSite::where('content_id', $insert['id'])->delete(); // Delete data
 
-                foreach ($request->input('id_situs') as $val) {
+                foreach ($request->input('site_id') as $val) {
                     $insertSitus = [
-                        'id_content' => $insert['id_content_user'],
-                        'id_situs' => $val
+                        'content_id' => $insert['id'],
+                        'site_id' => $val
                     ];
 
                     ContentSite::insert($insertSitus); // Insert new data
                 }
 
-                ContentTags::where('id_content', $insert['id_content_user'])->delete(); // Delete data
+                ContentTags::where('content_id', $insert['id'])->delete(); // Delete data
 
                 foreach ($tags as $val) {
                     $insertTags = [
-                        'nama_tag' => $val,
-                        'id_content' => $insert['id_content_user']
+                        'tag_name' => $val,
+                        'content_id' => $insert['id']
                     ];
 
                     ContentTags::insert($insertTags); // Insert new data
@@ -306,6 +295,7 @@ class ContentController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
+            dd($e->getMessage());
         }
 
         return redirect('content');
@@ -369,10 +359,10 @@ class ContentController extends Controller
     {
         $data = $request->all();
 
-        if (!empty($data['id_situs'])) {
-            $kategori = Category::where('id_situs', $data['id_situs'])->get();
+        if (!empty($data['site_id'])) {
+            $kategori = Category::where('site_id', $data['site_id'])->get();
         } else {
-            $kategori = Category::whereNull('id_situs')->get();
+            $kategori = Category::whereNull('site_id')->get();
         }
 
         if ($kategori) {

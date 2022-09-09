@@ -21,11 +21,11 @@
                 </div>
                 <div class="float-right">
                     <div class="btn-group" role="group">
-                        <a href="{{ url('content/add') }}" class="btn btn-primary pull-right"><i class="fa fa-plus"
-                                aria-hidden="true"></i> Tambah Konten</a>
+                        <a href="{{ url('content/create') }}" class="btn btn-primary pull-right">
+                            <i class="fa fa-plus" aria-hidden="true"></i> Tambah Konten
+                        </a>
                     </div>
                 </div>
-
             </div>
         </section>
 
@@ -47,37 +47,45 @@
                         @foreach ($data as $key => $val)
                             <tr>
                                 <td width="1%">{{ $key + 1 }}</td>
-                                <td><img src="https://sorot.news/img/content/{{ $val['gambar'] }}" class="image-news">
+                                <td>
+                                    <img src="{{ asset('img') }}/content/{{ $val->image }}" class="image-news">
                                 </td>
-                                <td width="20%">{{ $val['judul'] }}</td>
-                                <td>{{ $val['created_at'] }}</td>
-                                @if ($val['status_content'] == 1)
+                                <td width="20%">{{ $val->title }}</td>
+                                <td>{{ $val->created_at }}</td>
+
+                                @if ($val->status_content == 1)
                                     <td><label class="label label-warning">Pending</label></td>
-                                @elseif($val['status_content'] == 2)
+                                @elseif($val->status_content == 2)
                                     <td><label class="label label-success">Publish</label></td>
-                                @elseif($val['status_content'] == 3)
+                                @elseif($val->status_content == 3)
                                     <td width="20%"><label class="label label-danger text-center">Ditolak</label>
                                         <p style="font-size: 12px; margin-top: 20px;"><strong>catatan :</strong>
-                                            {{ $val['catatan'] }}</p>
+                                            {{ $val->note }}
+                                        </p>
                                     </td>
                                 @endif
+
                                 <td class="text-center" width="10%">
-                                    @if ($val['status_content'] == 1)
-                                        <a href="#" class="btn btn-sm btn-inline btn-success" data-toggle="modal"
-                                            onclick="showModalContent({{ $val }}); return false;"><i
-                                                class="fa fa-check"></i> Persetujuan</a>
+                                    @if ($val->status_content == 1)
+                                        <a href="#" class="btn btn-sm btn-inline btn-success mx-1 my-1"
+                                            data-toggle="modal"
+                                            onclick="showModalContent({{ $val }}); return false;">
+                                            <i class="fa fa-check"></i> Persetujuan
+                                        </a>
                                     @else
-                                        <a href="#" class="btn btn-sm btn-inline btn-success disabled" data-toggle="modal"
-                                            disabled><i class="fa fa-check"></i> Persetujuan</a>
+                                        <a href="#" class="btn btn-sm btn-inline btn-success disabled mx-1 my-1"
+                                            data-toggle="modal" disabled><i class="fa fa-check"></i> Persetujuan
+                                        </a>
                                     @endif
 
-                                    <a href="{{ url('content_user/preview/' . encrypt($val['id_content_user'])) }}"
-                                        class="btn btn-sm btn-inline btn-primary"><i class="fa fa-info-circle"></i>
-                                        Preview</a>
+                                    <a href="{{ url('content_user/preview/' . $val->content_id) }}"
+                                        class="btn btn-sm btn-inline btn-primary mx-1 my-1"><i
+                                            class="fa fa-info-circle"></i>
+                                        Preview
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach
-
                     </tbody>
                 </table>
             </div>

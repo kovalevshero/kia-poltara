@@ -10,6 +10,6 @@ class ContentTags extends Model
     use HasFactory;
 
     protected $guarded = [];
-    protected $primaryKey = 'id_content_tags';
+    protected $primaryKey = 'id';
     protected $table = 'content_tags';
 }
