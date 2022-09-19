@@ -101,7 +101,7 @@
 
         <div class="row">
 
-            <!-- Area Chart -->
+            <!-- Comparison Chart -->
             <div class="col-xl-6 col-lg-6">
                 <div class="card shadow mb-4">
                     <!-- Card Header - Dropdown -->
@@ -124,8 +124,19 @@
                     </div>
                     <!-- Card Body -->
                     <div class="card-body">
-                        <div class="chart-area">
-                            <canvas id="myAreaChart"></canvas>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="card-body bg-primary">
+                                    Prabowo Subianto
+                                </div>
+                                <center>vs</center>
+                                <div class="card-body bg-danger">
+                                    Puan Maharani
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div id="chart-comparison"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -257,4 +268,51 @@
         </div>
 
     </div>
+@endsection
+
+@section('script')
+    <script>
+        $(function() {
+            const options = {
+                series: [{
+                    name: 'Series 1',
+                    data: [80, 50, 30, 40, 100, 20],
+                }, {
+                    name: 'Series 2',
+                    data: [20, 30, 40, 80, 20, 80],
+                }],
+                chart: {
+                    height: 350,
+                    type: 'radar',
+                    dropShadow: {
+                        enabled: true,
+                        blur: 1,
+                        left: 1,
+                        top: 1
+                    }
+                },
+                title: {
+                    text: 'Radar Chart - Multi Series'
+                },
+                stroke: {
+                    width: 2
+                },
+                fill: {
+                    opacity: 0.1
+                },
+                markers: {
+                    size: 0
+                },
+                xaxis: {
+                    categories: [
+                        'Popularitas', 'Sentimen Positif', 'Sentimen Negatif', 'Elektabilitas',
+                        'Pengalaman Politik', 'Kekuatan Partai'
+                    ]
+                }
+            };
+
+            const chart = new ApexCharts(document.querySelector("#chart-comparison"), options);
+            chart.render();
+        })
+    </script>
 @endsection
