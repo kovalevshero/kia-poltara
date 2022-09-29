@@ -1,13 +1,24 @@
 @extends('layouts.master')
 
+@section('style')
+    <style>
+        #maps {
+            height: 300px;
+            min-width: 200px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+    </style>
+@endsection
+
 @section('content')
     <div class="container-fluid">
 
         <!-- Page Heading -->
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-            <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-                    class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
+            {{-- <h1 class="h3 mb-0 text-gray-800">Dashboard</h1> --}}
+            {{-- <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
+                    class="fas fa-download fa-sm text-white-50"></i> Generate Report</a> --}}
         </div>
 
         <!-- Content Row -->
@@ -126,11 +137,11 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-6">
-                                <div class="card-body bg-primary">
+                                <div class="card-body bg-primary" style="color: white">
                                     Prabowo Subianto
                                 </div>
                                 <center>vs</center>
-                                <div class="card-body bg-danger">
+                                <div class="card-body bg-danger" style="color: white">
                                     Puan Maharani
                                 </div>
                             </div>
@@ -166,19 +177,12 @@
                     <!-- Card Body -->
                     <div class="card-body">
                         <div class="chart-pie pt-4 pb-2">
-                            <canvas id="myPieChart"></canvas>
+                            {{-- <canvas id="myPieChart"></canvas> --}}
+                            <div id="maps"></div>
                         </div>
-                        <div class="mt-4 text-center small">
-                            <span class="mr-2">
-                                <i class="fas fa-circle text-primary"></i> Direct
-                            </span>
-                            <span class="mr-2">
-                                <i class="fas fa-circle text-success"></i> Social
-                            </span>
-                            <span class="mr-2">
-                                <i class="fas fa-circle text-info"></i> Referral
-                            </span>
+                        <div style="padding-bottom: 5.5rem">
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -196,28 +200,28 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="border-right">
-                                    <span class="font-weight-bold">Sentimen Positif Tertinggi</span>
-                                    <br>
-                                    <span>DKI Jakarta</span>
-                                    <br>
+                                    <h5 class="font-weight-bold"><i class="fas fa-circle fa-xs" style="color:#3eb369"></i>
+                                        Sentimen Positif Tertinggi
+                                    </h5>
+                                    <h3 class="my-3">DKI Jakarta</h3>
                                     <p><small>19 Agustus 2022</small></p>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="border-right">
-                                    <span class="font-weight-bold">Sentimen Netral Tertinggi</span>
-                                    <br>
-                                    <span>Jawa Barat</span>
-                                    <br>
+                                    <h5 class="font-weight-bold"><i class="fas fa-circle fa-xs" style="color: #d1cbcc"></i>
+                                        Sentimen Netral Tertinggi
+                                    </h5>
+                                    <h3 class="my-3">Jawa Barat</h3>
                                     <p><small>19 Agustus 2022</small></p>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div>
-                                    <span class="font-weight-bold">Sentimen Negatif Tertinggi</span>
-                                    <br>
-                                    <span>Nusa Tenggara Barat</span>
-                                    <br>
+                                    <h5 class="font-weight-bold"><i class="fas fa-circle fa-xs" style="color: #ff1c42"></i>
+                                        Sentimen Negatif Tertinggi
+                                    </h5>
+                                    <h3 class="my-3">Nusa Tenggara Barat</h3>
                                     <p><small>19 Agustus 2022</small></p>
                                 </div>
                             </div>
@@ -240,7 +244,30 @@
                     <div class="col-md-6">
                         <div class="card shadow mb-4">
                             <div class="card-body">
-                                <span>Analisis Spasial Tokoh</span>
+                                <h5>Analisis Spasial Tokoh</h5>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div id="chart-person-spatial"></div>
+                                    </div>
+                                    <div class="col-2">
+                                        <i class="far fa-smile fa-2x mx-2 my-2" style="color: #3eb369"></i>
+                                        <p class="font-weight-bold">Positif</p>
+                                        <p>30,00%</p>
+                                        <p>44</p>
+                                    </div>
+                                    <div class="col-2">
+                                        <i class="far fa-meh fa-2x mx-2 my-2" style="color: #d1cbcc"></i>
+                                        <p class="font-weight-bold">Netral</p>
+                                        <p>38,00%</p>
+                                        <p>55</p>
+                                    </div>
+                                    <div class="col-2">
+                                        <i class="far fa-frown fa-2x mx-2 my-2" style="color: #ff1c42"></i>
+                                        <p class="font-weight-bold">Negatif</p>
+                                        <p>32,00%</p>
+                                        <p>41</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -248,7 +275,30 @@
                     <div class="col-md-6">
                         <div class="card shadow mb-4">
                             <div class="card-body">
-                                <span>Analisis Spasial Partai Politik</span>
+                                <h5>Analisis Spasial Partai Politik</h5>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div id="chart-party-spatial"></div>
+                                    </div>
+                                    <div class="col-2">
+                                        <i class="far fa-smile fa-2x mx-2 my-2" style="color: #3eb369"></i>
+                                        <p class="font-weight-bold">Positif</p>
+                                        <p>30,00%</p>
+                                        <p>44</p>
+                                    </div>
+                                    <div class="col-2">
+                                        <i class="far fa-meh fa-2x mx-2 my-2" style="color: #d1cbcc"></i>
+                                        <p class="font-weight-bold">Netral</p>
+                                        <p>38,00%</p>
+                                        <p>55</p>
+                                    </div>
+                                    <div class="col-2">
+                                        <i class="far fa-frown fa-2x mx-2 my-2" style="color: #ff1c42"></i>
+                                        <p class="font-weight-bold">Negatif</p>
+                                        <p>32,00%</p>
+                                        <p>41</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -273,7 +323,8 @@
 @section('script')
     <script>
         $(function() {
-            const options = {
+            // Komparasi Tokoh Chart
+            const comparisonOptions = {
                 series: [{
                     name: 'Series 1',
                     data: [80, 50, 30, 40, 100, 20],
@@ -292,7 +343,7 @@
                     }
                 },
                 title: {
-                    text: 'Radar Chart - Multi Series'
+                    text: ''
                 },
                 stroke: {
                     width: 2
@@ -311,8 +362,157 @@
                 }
             };
 
-            const chart = new ApexCharts(document.querySelector("#chart-comparison"), options);
-            chart.render();
+            const comparisonChart = new ApexCharts(document.querySelector("#chart-comparison"), comparisonOptions);
+            comparisonChart.render();
+
+            // Analisis Spatial Tokoh
+            const personSpatialOptions = {
+                series: [44, 55, 41],
+                labels: ['Positif', 'Netral', 'Negatif'],
+                colors: ['#3eb369', '#d1cbcc', '#ff1c42'],
+                chart: {
+                    type: 'donut',
+                },
+                dataLabels: {
+                    enabled: false,
+                },
+                responsive: [{
+                    breakpoint: 480,
+                    options: {
+                        chart: {
+                            width: 200
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }]
+            };
+
+            const personSpatialChart = new ApexCharts(document.querySelector("#chart-person-spatial"),
+                personSpatialOptions);
+            personSpatialChart.render();
+
+            // Analisis Spatial Partai Politik
+            const partySpatialOptions = {
+                series: [44, 55, 41],
+                labels: ['Positif', 'Netral', 'Negatif'],
+                colors: ['#3eb369', '#d1cbcc', '#ff1c42'],
+                chart: {
+                    type: 'donut',
+                },
+                dataLabels: {
+                    enabled: false,
+                },
+                responsive: [{
+                    breakpoint: 480,
+                    options: {
+                        chart: {
+                            width: 200
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }]
+            };
+
+            const partySpatialChart = new ApexCharts(document.querySelector("#chart-party-spatial"),
+                partySpatialOptions);
+            partySpatialChart.render();
+
+            // Maps
+
+            (async () => {
+
+                const topology = await fetch(
+                    'https://code.highcharts.com/mapdata/countries/id/id-all.topo.json'
+                ).then(response => response.json());
+
+                // Prepare demo data. The data is joined to map using value of 'hc-key'
+                // property by default. See API docs for 'joinBy' for more info on linking
+                // data and map.
+                const data = [
+                    ['id-3700', 10],
+                    ['id-ac', 11],
+                    ['id-jt', 12],
+                    ['id-be', 13],
+                    ['id-bt', 14],
+                    ['id-kb', 15],
+                    ['id-bb', 16],
+                    ['id-ba', 17],
+                    ['id-ji', 18],
+                    ['id-ks', 19],
+                    ['id-nt', 20],
+                    ['id-se', 21],
+                    ['id-kr', 22],
+                    ['id-ib', 23],
+                    ['id-su', 24],
+                    ['id-ri', 25],
+                    ['id-sw', 26],
+                    ['id-ku', 27],
+                    ['id-la', 28],
+                    ['id-sb', 29],
+                    ['id-ma', 30],
+                    ['id-nb', 31],
+                    ['id-sg', 32],
+                    ['id-st', 33],
+                    ['id-pa', 34],
+                    ['id-jr', 35],
+                    ['id-ki', 36],
+                    ['id-1024', 37],
+                    ['id-jk', 38],
+                    ['id-go', 39],
+                    ['id-yo', 40],
+                    ['id-sl', 41],
+                    ['id-sr', 42],
+                    ['id-ja', 43],
+                    ['id-kt', 44]
+                ];
+
+                // Create the chart
+                Highcharts.mapChart('maps', {
+                    chart: {
+                        map: topology
+                    },
+
+                    title: {
+                        text: ''
+                    },
+
+                    subtitle: {
+                        text: ''
+                    },
+
+                    mapNavigation: {
+                        enabled: true,
+                        buttonOptions: {
+                            verticalAlign: 'bottom'
+                        }
+                    },
+
+                    colorAxis: {
+                        min: 0
+                    },
+
+                    series: [{
+                        data: data,
+                        name: 'Random data',
+                        showInLegend: false,
+                        states: {
+                            hover: {
+                                color: '#BADA55'
+                            }
+                        },
+                        dataLabels: {
+                            enabled: false,
+                            format: '{point.name}'
+                        }
+                    }]
+                });
+
+            })();
+
         })
     </script>
 @endsection
